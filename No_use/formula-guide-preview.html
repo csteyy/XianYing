@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F列公式是怎么工作的？</title>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .fade-in { animation: fadeIn 0.3s ease; }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+    .pulse { animation: pulse 1.5s ease infinite; }
+    @keyframes slideRight { from { width: 0; } to { width: 100%; } }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const rows = [
+      { id: 2, speaker: "客服A", content: "您好，请问有什么可以帮到您？" },
+      { id: 3, speaker: "用户",  content: "我的订单三天了还没发货！" },
+      { id: 4, speaker: "用户",  content: "你们这是什么态度，太差劲了！" },
+      { id: 5, speaker: "客服A", content: "非常抱歉给您带来不便，我马上为您查询。" },
+      { id: 6, speaker: "客服A", content: "查到了，您的包裹今天下午会发出。" },
+      { id: 7, speaker: "用户",  content: "好吧，希望快点到。" },
+      { id: 8, speaker: "客服A", content: "感谢您的理解，祝您生活愉快！" },
+      { id: 9, speaker: "用户",  content: "谢谢。" },
+      { id: 10, speaker: "客服A", content: "如有需要请随时联系我们。" },
+    ];
+
+    const emotions = ["Positive","Negative","Neutral","Positive","Positive","Neutral","Positive","Neutral","Neutral"];
+    const emojiMap = { Positive: "😊", Negative: "😠", Neutral: "😐" };
+    const emotionCN = { Positive: "正面", Negative: "负面", Neutral: "中性" };
+    const eColors = {
+      Positive: { bg: "#d1fae5", text: "#065f46", border: "#6ee7b7" },
+      Negative: { bg: "#fee2e2", text: "#991b1b", border: "#fca5a5" },
+      Neutral:  { bg: "#f3f4f6", text: "#374151", border: "#d1d5db" },
+    };
+
+    function getCtx(targetRow) {
+      const idx = targetRow - 2;
+      if (idx <= 2) return [2, 6];
+      if (idx >= rows.length - 2) return [rows.length - 3, rows.length + 1];
+      return [targetRow - 2, targetRow + 2];
+    }
+
+    function App() {
+      const [sel, setSel] = useState(4);
+      const [tab, setTab] = useState("demo");
+
+      const idx = sel - 2;
+      const [cs, ce] = getCtx(sel);
+      const emo = emotions[idx];
+      const ec = eColors[emo];
+
+      return (
+        <div style={{ minHeight: "100vh", padding: "28px 20px", background: "linear-gradient(180deg, #0f172a 0%, #1a1f35 100%)" }}>
+          <div style={{ maxWidth: 900, margin: "0 auto" }}>
+
+            {/* ─── 标题 ─── */}
+            <div style={{ textAlign: "center", marginBottom: 32 }}>
+              <div style={{ fontSize: 42, marginBottom: 8 }}>🧩</div>
+              <h1 style={{ fontSize: 28, fontWeight: 800, color: "#f8fafc", marginBottom: 10 }}>
+                F 列的公式到底在干嘛？
+              </h1>
+              <p style={{ color: "#94a3b8", fontSize: 15, maxWidth: 500, margin: "0 auto", lineHeight: 1.7 }}>
+                别慌，其实就三件事：<strong style={{ color: "#60a5fa" }}>告诉 AI 看哪几行</strong>、<strong style={{ color: "#fbbf24" }}>指定判断哪一行</strong>、<strong style={{ color: "#34d399" }}>规定只能回答三选一</strong>。
+              </p>
+            </div>
+
+            {/* ─── Tab 切换 ─── */}
+            <div style={{ display: "flex", justifyContent: "center", gap: 6, marginBottom: 28 }}>
+              {[
+                ["demo", "👆 点一点就懂了"],
+                ["anatomy", "🔍 公式长啥样"],
+                ["why", "💡 为什么要这样写"],
+              ].map(([k, l]) => (
+                <button key={k} onClick={() => setTab(k)} style={{
+                  padding: "10px 22px", borderRadius: 10, border: "none", cursor: "pointer",
+                  fontSize: 14, fontWeight: 600,
+                  background: tab === k ? "#3b82f6" : "#1e293b",
+                  color: tab === k ? "#fff" : "#94a3b8",
+                  transition: "all 0.2s",
+                  boxShadow: tab === k ? "0 4px 20px rgba(59,130,246,0.3)" : "none",
+                }}>{l}</button>
+              ))}
+            </div>
+
+            {/* ═══════ TAB 1: 交互演示 ═══════ */}
+            {tab === "demo" && (
+              <div className="fade-in">
+                {/* 顶部提示 */}
+                <div style={{ textAlign: "center", marginBottom: 20 }}>
+                  <div style={{ display: "inline-block", background: "#1e293b", borderRadius: 10, padding: "10px 24px", fontSize: 14, color: "#94a3b8" }}>
+                    👇 <strong style={{ color: "#60a5fa" }}>点击下面表格的任意一行</strong>，看看右边会发生什么变化
+                  </div>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
+
+                  {/* 左：表格 */}
+                  <div style={{ background: "#1e293b", borderRadius: 14, overflow: "hidden", border: "1px solid #334155" }}>
+                    <div style={{ padding: "10px 16px", background: "#0f172a", fontSize: 11, color: "#64748b", fontWeight: 700, letterSpacing: 2, textTransform: "uppercase" }}>
+                      模拟 Google Sheets 表格
+                    </div>
+                    <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <thead>
+                        <tr style={{ background: "#0f172a" }}>
+                          <th style={{ padding: "8px", color: "#475569", width: 32, fontSize: 11, textAlign: "center" }}>行</th>
+                          <th style={{ padding: "8px 10px", color: "#64748b", fontSize: 12, textAlign: "left" }}>B：对话内容</th>
+                          <th style={{ padding: "8px", color: "#3b82f6", fontSize: 12, textAlign: "center", width: 60 }}>F：情绪</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map((r, i) => {
+                          const isTarget = r.id === sel;
+                          const inCtx = r.id >= cs && r.id <= ce;
+                          const e = emotions[i];
+                          const ecc = eColors[e];
+                          return (
+                            <tr key={r.id} onClick={() => setSel(r.id)} style={{
+                              cursor: "pointer",
+                              background: isTarget ? "#1d3a5f" : inCtx ? "#1e2d3d" : "transparent",
+                              borderLeft: isTarget ? "4px solid #3b82f6" : inCtx ? "4px solid #334155" : "4px solid transparent",
+                              transition: "all 0.15s",
+                            }}>
+                              <td style={{ padding: "9px 8px", textAlign: "center", color: isTarget ? "#60a5fa" : "#475569", fontSize: 11, fontWeight: isTarget ? 700 : 400 }}>{r.id}</td>
+                              <td style={{ padding: "9px 10px", color: isTarget ? "#f8fafc" : inCtx ? "#cbd5e1" : "#64748b", fontSize: 12.5, lineHeight: 1.4 }}>
+                                {r.content}
+                              </td>
+                              <td style={{ padding: "9px 6px", textAlign: "center" }}>
+                                <span style={{
+                                  fontSize: 11, padding: "3px 8px", borderRadius: 6, fontWeight: 700,
+                                  background: ecc.bg, color: ecc.text, border: `1px solid ${ecc.border}`,
+                                }}>{emojiMap[e]}</span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                    <div style={{ padding: "8px 14px", fontSize: 11, color: "#475569", borderTop: "1px solid #0f172a", display: "flex", gap: 16 }}>
+                      <span>🔵 = 你选中的行</span>
+                      <span>灰色 = AI 一起看到的行</span>
+                    </div>
+                  </div>
+
+                  {/* 右：解释 */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+                    {/* Step 1 */}
+                    <div style={{ background: "#1d3a5f", borderRadius: 14, padding: 18, border: "1px solid #2563eb" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                        <div style={{ background: "#3b82f6", color: "#fff", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800 }}>1</div>
+                        <div style={{ fontSize: 13, color: "#93c5fd", fontWeight: 700 }}>你选了第 {sel} 行</div>
+                      </div>
+                      <div style={{ background: "#0f172a", borderRadius: 10, padding: "12px 14px", fontSize: 15, color: "#f8fafc", lineHeight: 1.5 }}>
+                        "{rows[idx].content}"
+                      </div>
+                      <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 8 }}>说话的人是 <strong style={{ color: "#e2e8f0" }}>{rows[idx].speaker}</strong></div>
+                    </div>
+
+                    {/* Step 2 */}
+                    <div style={{ background: "#1e293b", borderRadius: 14, padding: 18, border: "1px solid #334155" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                        <div style={{ background: "#f59e0b", color: "#fff", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800 }}>2</div>
+                        <div style={{ fontSize: 13, color: "#fbbf24", fontWeight: 700 }}>AI 不是只看这一句，它还会看旁边的对话</div>
+                      </div>
+                      <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 10 }}>
+                        公式把第 <strong style={{ color: "#fbbf24" }}>{cs}</strong> 行到第 <strong style={{ color: "#fbbf24" }}>{ce}</strong> 行，一共 <strong style={{ color: "#fbbf24" }}>5句话</strong> 都喂给了 AI：
+                      </div>
+                      {rows.filter(r => r.id >= cs && r.id <= ce).map(r => (
+                        <div key={r.id} style={{
+                          display: "flex", gap: 8, marginBottom: 5, alignItems: "center",
+                          background: r.id === sel ? "#1d3a5f" : "#0f172a",
+                          borderRadius: 8, padding: "7px 10px",
+                          border: r.id === sel ? "1.5px solid #3b82f6" : "1.5px solid transparent",
+                        }}>
+                          <span style={{ fontSize: 10, color: "#475569", minWidth: 22 }}>B{r.id}</span>
+                          <span style={{ fontSize: 12, color: r.id === sel ? "#93c5fd" : "#64748b", flex: 1 }}>{r.content}</span>
+                          {r.id === sel && <span style={{ fontSize: 10, color: "#3b82f6", fontWeight: 700, whiteSpace: "nowrap" }}>← 判这句</span>}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Step 3 */}
+                    <div style={{ background: "#0f2a1a", borderRadius: 14, padding: 18, border: "1px solid #166534" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                        <div style={{ background: "#10b981", color: "#fff", borderRadius: "50%", width: 28, height: 28, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800 }}>3</div>
+                        <div style={{ fontSize: 13, color: "#34d399", fontWeight: 700 }}>AI 的判断结果</div>
+                      </div>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span className="pulse" style={{
+                          fontSize: 32, padding: "6px 16px", borderRadius: 12,
+                          background: ec.bg, border: `2px solid ${ec.border}`,
+                        }}>{emojiMap[emo]}</span>
+                        <div>
+                          <div style={{ fontSize: 18, fontWeight: 800, color: ec.text, background: ec.bg, display: "inline-block", padding: "2px 12px", borderRadius: 6 }}>
+                            {emotionCN[emo]}（{emo}）
+                          </div>
+                          <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 4 }}>这个结果会自动填进 F{sel} 格子里</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* 公式预览 */}
+                    <div style={{ background: "#0f172a", borderRadius: 10, padding: "12px 14px", border: "1px solid #1e293b" }}>
+                      <div style={{ fontSize: 11, color: "#10b981", fontWeight: 600, marginBottom: 6 }}>📋 F{sel} 格子里的公式就是这个：</div>
+                      <div style={{ fontSize: 11, color: "#4ade80", fontFamily: "monospace", wordBreak: "break-all", lineHeight: 1.7 }}>
+                        {`=AI("Analyze the emotional tone of the sentence in row ${sel}. Use B${cs}:B${ce} as context. Output only one: Positive, Negative, Neutral.", B${cs}:B${ce})`}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ═══════ TAB 2: 公式解剖 ═══════ */}
+            {tab === "anatomy" && (
+              <div className="fade-in" style={{ maxWidth: 720, margin: "0 auto" }}>
+                <div style={{ textAlign: "center", marginBottom: 24 }}>
+                  <div style={{ fontSize: 15, color: "#94a3b8" }}>我们拿 <strong style={{ color: "#f8fafc" }}>F4 这个格子</strong> 的公式来拆开看：</div>
+                </div>
+
+                {/* 完整公式 */}
+                <div style={{ background: "#0f172a", borderRadius: 14, padding: 20, border: "1px solid #1e293b", marginBottom: 24, textAlign: "center" }}>
+                  <div style={{ fontSize: 14, color: "#4ade80", fontFamily: "monospace", lineHeight: 2.2, wordBreak: "break-all" }}>
+                    {"=AI(\"Analyze the emotional tone of the sentence in "}
+                    <span style={{ background: "#1d4ed8", color: "#93c5fd", padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>row 4</span>
+                    {". Use "}
+                    <span style={{ background: "#713f12", color: "#fcd34d", padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>B2:B6</span>
+                    {" as context. Output only one: Positive, Negative, Neutral.\", "}
+                    <span style={{ background: "#713f12", color: "#fcd34d", padding: "2px 6px", borderRadius: 4, fontWeight: 700 }}>B2:B6</span>
+                    {")"}
+                  </div>
+                </div>
+
+                {/* 四块拆解 */}
+                {[
+                  {
+                    num: "1", color: "#3b82f6", emoji: "🤖",
+                    title: "=AI(\"...\")",
+                    simple: "这是一个 Google 自带的函数",
+                    detail: "就像你平时用 =SUM 求和一样，=AI 是让 Google 帮你调 AI 来回答问题。你只要把「问题」和「数据」写进去就行。"
+                  },
+                  {
+                    num: "2", color: "#3b82f6", emoji: "🎯",
+                    title: "row 4 → 告诉 AI「判谁」",
+                    simple: "公式在第几行，这里就写几",
+                    detail: "F4 格子里写 row 4，F5 格子里写 row 5，F100 写 row 100。就是告诉 AI：\"在你看到的这堆对话里，帮我判断第 X 行这句话的情绪。\""
+                  },
+                  {
+                    num: "3", color: "#f59e0b", emoji: "📦",
+                    title: "B2:B6 → 给 AI 看的「对话片段」",
+                    simple: "不是只给一句话，而是给附近 5 句",
+                    detail: "想象你在看聊天记录：如果只看「好吧」两个字，你不知道对方开心还是不开心。但如果你往上翻几条消息，就能理解了。这里做的就是同样的事——把目标句的前后几句一起发给 AI。"
+                  },
+                  {
+                    num: "4", color: "#10b981", emoji: "🔒",
+                    title: "Output only one: Positive, Negative, Neutral",
+                    simple: "逼 AI 只回答三选一",
+                    detail: "如果不加这句话，AI 可能写一大堆解释。加了以后，它就只会乖乖回答 Positive、Negative 或 Neutral 中的一个，格子里干干净净。"
+                  },
+                ].map((item, i) => (
+                  <div key={i} style={{
+                    background: "#1e293b", borderRadius: 14, padding: "20px 24px", marginBottom: 14,
+                    border: `1px solid #334155`, borderLeft: `4px solid ${item.color}`,
+                  }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 10 }}>
+                      <div style={{ fontSize: 28 }}>{item.emoji}</div>
+                      <div>
+                        <div style={{ fontSize: 15, color: "#f8fafc", fontWeight: 700 }}>{item.title}</div>
+                        <div style={{ fontSize: 13, color: item.color, fontWeight: 600, marginTop: 2 }}>{item.simple}</div>
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 13.5, color: "#94a3b8", lineHeight: 1.8, paddingLeft: 40 }}>
+                      {item.detail}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* ═══════ TAB 3: 为什么 ═══════ */}
+            {tab === "why" && (
+              <div className="fade-in" style={{ maxWidth: 720, margin: "0 auto" }}>
+
+                {/* 对比 */}
+                <div style={{ background: "#1e293b", borderRadius: 14, padding: 24, border: "1px solid #334155", marginBottom: 20 }}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: "#f8fafc", textAlign: "center", marginBottom: 6 }}>
+                    为什么不能只给 AI 一句话？
+                  </div>
+                  <div style={{ fontSize: 14, color: "#94a3b8", textAlign: "center", marginBottom: 20 }}>
+                    举个例子，你看到这句话：
+                  </div>
+                  <div style={{ textAlign: "center", fontSize: 22, fontWeight: 700, color: "#f8fafc", marginBottom: 24, padding: "14px 0", background: "#0f172a", borderRadius: 10 }}>
+                    "好吧，希望快点到。"
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                    <div style={{ background: "#2d1515", borderRadius: 12, padding: 18, border: "1px solid #7f1d1d" }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#f87171", marginBottom: 12 }}>❌ AI 只看到这一句</div>
+                      <div style={{ background: "#0f172a", borderRadius: 8, padding: 14 }}>
+                        <div style={{ fontSize: 36, textAlign: "center", marginBottom: 8 }}>🤷</div>
+                        <div style={{ fontSize: 13, color: "#94a3b8", lineHeight: 1.7, textAlign: "center" }}>
+                          AI 心里想：<br/>
+                          <em style={{ color: "#f87171" }}>"好吧"是不耐烦？是妥协？是开心？<br/>我猜不准啊...</em>
+                        </div>
+                        <div style={{ textAlign: "center", marginTop: 12 }}>
+                          <span style={{ background: "#fee2e2", color: "#991b1b", padding: "4px 14px", borderRadius: 8, fontWeight: 700, fontSize: 13 }}>
+                            可能判成 Negative 😠
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ background: "#0d2d1a", borderRadius: 12, padding: 18, border: "1px solid #166534" }}>
+                      <div style={{ fontSize: 16, fontWeight: 700, color: "#4ade80", marginBottom: 12 }}>✅ AI 看到前后 5 句</div>
+                      <div style={{ background: "#0f172a", borderRadius: 8, padding: 14 }}>
+                        <div style={{ fontSize: 11, color: "#475569", marginBottom: 3 }}>客服A：非常抱歉...我马上为您查询</div>
+                        <div style={{ fontSize: 11, color: "#475569", marginBottom: 3 }}>客服A：查到了，今天下午会发出</div>
+                        <div style={{ fontSize: 13, color: "#93c5fd", fontWeight: 700, margin: "6px 0", padding: "4px 0" }}>👉 用户："好吧，希望快点到。"</div>
+                        <div style={{ fontSize: 11, color: "#475569", marginBottom: 3 }}>客服A：感谢您的理解...</div>
+                        <div style={{ fontSize: 11, color: "#475569" }}>用户：谢谢</div>
+                        <div style={{ fontSize: 36, textAlign: "center", margin: "10px 0 6px" }}>😌</div>
+                        <div style={{ fontSize: 12, color: "#94a3b8", textAlign: "center", lineHeight: 1.6 }}>
+                          AI 看到了：问题解决了 → 用户语气缓和了
+                        </div>
+                        <div style={{ textAlign: "center", marginTop: 10 }}>
+                          <span style={{ background: "#d1fae5", color: "#065f46", padding: "4px 14px", borderRadius: 8, fontWeight: 700, fontSize: 13 }}>
+                            准确判成 Neutral 😐
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 行号怎么填 */}
+                <div style={{ background: "#1e293b", borderRadius: 14, padding: 24, border: "1px solid #334155", marginBottom: 20 }}>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: "#f8fafc", marginBottom: 6 }}>
+                    行号怎么填？有什么规律？
+                  </div>
+                  <div style={{ fontSize: 14, color: "#94a3b8", marginBottom: 16, lineHeight: 1.7 }}>
+                    超级简单。你只要记住一个规则：
+                  </div>
+                  <div style={{
+                    background: "#0f172a", borderRadius: 12, padding: "18px 24px", marginBottom: 20,
+                    border: "2px solid #3b82f6", textAlign: "center",
+                  }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: "#60a5fa", lineHeight: 1.8 }}>
+                      窗口起始行 = 目标行 - 2（不能小于 2）<br/>
+                      窗口结束行 = 起始行 + 4
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 14, color: "#94a3b8", marginBottom: 14 }}>
+                    说人话就是：<strong style={{ color: "#f8fafc" }}>往上数 2 行，往下数 2 行，凑 5 行</strong>。看下面的例子：
+                  </div>
+                  <div style={{ overflowX: "auto" }}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+                      <thead>
+                        <tr style={{ background: "#0f172a" }}>
+                          <th style={{ padding: "10px 14px", color: "#64748b", fontWeight: 700, textAlign: "left", borderBottom: "2px solid #334155" }}>你填的格子</th>
+                          <th style={{ padding: "10px 14px", color: "#64748b", fontWeight: 700, textAlign: "left", borderBottom: "2px solid #334155" }}>row 几</th>
+                          <th style={{ padding: "10px 14px", color: "#64748b", fontWeight: 700, textAlign: "left", borderBottom: "2px solid #334155" }}>给AI看的范围</th>
+                          <th style={{ padding: "10px 14px", color: "#64748b", fontWeight: 700, textAlign: "left", borderBottom: "2px solid #334155" }}>怎么算的</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          ["F2",  "2",  "B2:B6",    "2-2=0，不能小于2，所以从2开始"],
+                          ["F3",  "3",  "B2:B6",    "3-2=1，不能小于2，所以还是从2"],
+                          ["F4",  "4",  "B2:B6",    "4-2=2，刚好！2到6"],
+                          ["F5",  "5",  "B3:B7",    "5-2=3，所以 3到7 ✓"],
+                          ["F6",  "6",  "B4:B8",    "6-2=4，所以 4到8 ✓"],
+                          ["F100","100","B98:B102",  "100-2=98，所以 98到102 ✓"],
+                          ["F5000","5000","B4998:B5002", "5000-2=4998，所以 4998到5002 ✓"],
+                        ].map((r, i) => (
+                          <tr key={i} style={{
+                            borderBottom: "1px solid #1e293b",
+                            background: i % 2 === 0 ? "transparent" : "#0f172a",
+                          }}>
+                            <td style={{ padding: "10px 14px", color: "#e2e8f0", fontWeight: 600 }}>{r[0]}</td>
+                            <td style={{ padding: "10px 14px", color: "#e2e8f0" }}>{r[1]}</td>
+                            <td style={{ padding: "10px 14px", color: "#fcd34d", fontWeight: 600, fontFamily: "monospace" }}>{r[2]}</td>
+                            <td style={{ padding: "10px 14px", color: "#64748b", fontSize: 12 }}>{r[3]}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* 总结 */}
+                <div style={{
+                  background: "linear-gradient(135deg, #1e3a5f, #1a2e4a)", borderRadius: 14, padding: 24,
+                  border: "1px solid #2563eb",
+                }}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: "#f8fafc", marginBottom: 12 }}>📝 总结：你只需要做什么？</div>
+                  {[
+                    "每个 F 格子里粘贴同一个公式模板",
+                    "把 row 后面的数字改成当前行号",
+                    "把 B?:B? 的范围按上面的规律改一下",
+                    "从第 2 行一直往下填到最后一行",
+                  ].map((t, i) => (
+                    <div key={i} style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 10 }}>
+                      <div style={{
+                        background: "#3b82f6", color: "#fff", borderRadius: "50%",
+                        width: 26, height: 26, display: "flex", alignItems: "center", justifyContent: "center",
+                        fontSize: 13, fontWeight: 800, flexShrink: 0,
+                      }}>{i + 1}</div>
+                      <div style={{ fontSize: 14, color: "#e2e8f0", lineHeight: 1.5 }}>{t}</div>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: 14, fontSize: 13, color: "#94a3b8", lineHeight: 1.6, paddingLeft: 38 }}>
+                    就这么多。填到 5000 行、10000 行都是同样的规律，不会变。
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+  </script>
+</body>
+</html>

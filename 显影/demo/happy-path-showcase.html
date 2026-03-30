@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>显·影 — Happy Path Showcase</title>
+<style>
+/* ── Reset & Base ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #1a1a1a;
+  --bg-subtle: #232323;
+  --text: #e8e6e3;
+  --text-muted: #8a8a8a;
+  --accent: #d4c5a9;
+
+  /* App design tokens (light theme inside phone) */
+  --app-bg: #faf9f7;
+  --app-fg: #1a1a1a;
+  --app-card: #ffffff;
+  --app-border: #e5e5e5;
+  --app-muted: #f5f5f4;
+  --app-muted-fg: #737373;
+  --app-primary: #1a1a1a;
+  --app-primary-fg: #faf9f7;
+  --app-destructive: #dc2626;
+
+  --phone-w: 375px;
+  --phone-h: 812px;
+  --phone-radius: 52px;
+  --phone-bezel: 10px;
+  --screen-radius: 44px;
+
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --font-serif: 'Songti SC', 'STSong', 'Noto Serif SC', Georgia, serif;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 30% 20%, rgba(60,55,45,0.3) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 70% 80%, rgba(40,35,30,0.2) 0%, transparent 50%);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Page Layout ── */
+.showcase {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 64px;
+  padding: 40px;
+}
+
+/* ── Left panel: info ── */
+.info-panel {
+  max-width: 380px;
+  flex-shrink: 0;
+}
+
+.info-panel h1 {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.info-panel .tagline {
+  font-size: 15px;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 40px;
+}
+
+.step-desc {
+  min-height: 120px;
+}
+
+.step-desc .step-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.step-desc h2 {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.step-desc p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--text-muted);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 2px;
+  background: var(--bg-subtle);
+  border-radius: 1px;
+  margin-top: 32px;
+  overflow: hidden;
+}
+
+.progress-bar .fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+/* ── iPhone Mockup ── */
+.phone-wrap {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.phone-frame {
+  width: var(--phone-w);
+  height: var(--phone-h);
+  border-radius: var(--phone-radius);
+  background: #0a0a0a;
+  padding: var(--phone-bezel);
+  position: relative;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.06),
+    0 0 0 1px rgba(255,255,255,0.1),
+    0 0 0 2px rgba(0,0,0,0.3),
+    0 24px 80px rgba(0,0,0,0.5),
+    0 0 160px rgba(0,0,0,0.25);
+}
+
+.phone-screen {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--screen-radius);
+  overflow: hidden;
+  position: relative;
+  background: var(--app-bg);
+}
+
+/* Dynamic Island */
+.dynamic-island {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 126px;
+  height: 36px;
+  background: #000;
+  border-radius: 20px;
+  z-index: 100;
+}
+
+/* Home Indicator */
+.home-indicator {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 134px;
+  height: 5px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 3px;
+  z-index: 100;
+}
+
+/* Side buttons */
+.phone-frame::before {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 168px;
+  width: 3px;
+  height: 56px;
+  background: #1a1a1a;
+  border-radius: 0 2px 2px 0;
+  box-shadow: 1px 0 0 rgba(255,255,255,0.06);
+}
+
+.phone-frame::after {
+  content: '';
+  position: absolute;
+  left: -3px;
+  top: 140px;
+  width: 3px;
+  height: 32px;
+  background: #1a1a1a;
+  border-radius: 2px 0 0 2px;
+  box-shadow: -1px 0 0 rgba(255,255,255,0.06);
+}
+
+.phone-vol-up, .phone-vol-down {
+  position: absolute;
+  left: -3px;
+  width: 3px;
+  background: #1a1a1a;
+  border-radius: 2px 0 0 2px;
+}
+.phone-vol-up { top: 192px; height: 32px; }
+.phone-vol-down { top: 232px; height: 32px; }
+
+/* ── Screen Container ── */
+.screen-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  pointer-events: none;
+}
+
+.screen.active {
+  opacity: 1;
+  transform: translateY(0);
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.screen::-webkit-scrollbar { display: none; }
+
+/* ── App Shared Styles ── */
+.screen {
+  font-family: var(--font-sans);
+  color: var(--app-fg);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(250,249,247,0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--app-border);
+  padding-top: 56px;
+}
+
+.app-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  min-height: 48px;
+}
+
+.app-header h2 {
+  font-family: var(--font-serif);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.header-spacer {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 12px;
+  color: var(--app-fg);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.section-title .bar {
+  width: 3px;
+  height: 20px;
+  background: var(--app-fg);
+  border-radius: 2px;
+}
+
+.section-title h3 {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid var(--app-border);
+  background: var(--app-muted);
+  color: var(--app-fg);
+}
+
+.badge-primary {
+  background: var(--app-primary);
+  color: var(--app-primary-fg);
+  border-color: var(--app-primary);
+}
+
+.badge-green {
+  background: rgba(34,197,94,0.1);
+  color: #16a34a;
+  border-color: rgba(34,197,94,0.3);
+}
+
+.badge-blue {
+  background: rgba(59,130,246,0.1);
+  color: #2563eb;
+  border-color: rgba(59,130,246,0.3);
+}
+
+.badge-red {
+  background: rgba(239,68,68,0.1);
+  color: #dc2626;
+  border-color: rgba(239,68,68,0.3);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 15px;
+  border-radius: 12px;
+  transition: all 0.15s;
+}
+
+.btn-primary {
+  background: var(--app-primary);
+  color: var(--app-primary-fg);
+  height: 48px;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--app-fg);
+  border: 1px solid var(--app-border);
+  height: 48px;
+  width: 100%;
+  padding: 0 20px;
+}
+
+.btn-sm {
+  height: 36px;
+  font-size: 13px;
+  padding: 0 14px;
+  border-radius: 8px;
+}
+
+.btn-destructive {
+  background: var(--app-destructive);
+  color: #fff;
+  height: 40px;
+  flex: 1;
+  padding: 0 16px;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--app-border);
+  height: 40px;
+  flex: 1;
+  padding: 0 16px;
+  color: var(--app-fg);
+}
+
+.card {
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+/* ── Bottom Nav ── */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--app-card);
+  border-top: 1px solid var(--app-border);
+  padding-bottom: 20px;
+}
+
+.bottom-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px;
+  min-height: 52px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 16px;
+  border-radius: 12px;
+  position: relative;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+.nav-item.active {
+  background: rgba(26,26,26,0.08);
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  color: var(--app-muted-fg);
+}
+
+.nav-item.active svg {
+  color: var(--app-primary);
+}
+
+.nav-item span {
+  font-size: 10px;
+  color: var(--app-muted-fg);
+}
+
+.nav-item.active span {
+  color: var(--app-primary);
+}
+
+/* ── Step Tags (bottom of showcase) ── */
+.step-tags {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 700px;
+}
+
+.step-tag {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.25s;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+
+.step-tag:hover {
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+}
+
+.step-tag.active {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+/* ── Play/Pause Button ── */
+.play-toggle {
+  position: fixed;
+  top: 24px;
+  right: 32px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06);
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: var(--font-sans);
+}
+
+.play-toggle:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
+}
+
+/* ── SVG Icons (inline) ── */
+svg.icon { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+svg.icon-lg { width: 20px; height: 20px; }
+svg.icon-xl { width: 24px; height: 24px; }
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes slideInFromBottom {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.anim-fade-in-up {
+  animation: fadeInUp 0.5s ease both;
+}
+
+.anim-fade-in {
+  animation: fadeIn 0.4s ease both;
+}
+
+/* Speaker colors */
+.speaker-alin { background: #dbeafe; color: #1e40af; }
+.speaker-xiaoxia { background: #fce7f3; color: #9d174d; }
+.speaker-dapeng { background: #d1fae5; color: #065f46; }
+.speaker-mia { background: #fef3c7; color: #92400e; }
+
+.speaker-dot-alin { background: #3b82f6; }
+.speaker-dot-xiaoxia { background: #ec4899; }
+.speaker-dot-dapeng { background: #10b981; }
+.speaker-dot-mia { background: #f59e0b; }
+
+/* ── Screen 1: Home ── */
+.home-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--app-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--app-border) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.home-grid-mask {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 50% at 50% 40%, transparent 0%, var(--app-bg) 100%);
+}
+
+.home-content {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding-top: 56px;
+}
+
+.home-tagline {
+  text-align: center;
+  padding: 12px 24px 0;
+}
+
+.home-tagline h2 {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.home-tagline p {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--app-muted-fg);
+  opacity: 0.6;
+  letter-spacing: 0.04em;
+}
+
+.home-canvas-wrap {
+  margin: 20px auto 0;
+  width: 260px;
+  height: 260px;
+}
+
+.home-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.home-typewriter {
+  text-align: center;
+  padding: 16px 0;
+  font-size: 15px;
+  color: var(--app-muted-fg);
+  opacity: 0.6;
+  letter-spacing: 0.04em;
+  min-height: 52px;
+}
+
+.home-typewriter .cursor {
+  display: inline-block;
+  width: 1.5px;
+  height: 18px;
+  background: var(--app-muted-fg);
+  opacity: 0.5;
+  margin-left: 2px;
+  vertical-align: middle;
+  animation: blink 1s infinite;
+}
+
+.home-cta {
+  padding: 0 24px 88px;
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Screen 3: Recording ── */
+.rec-header {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 8px;
+}
+
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: pulse 1.5s infinite;
+}
+
+.rec-title {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.rec-time {
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  color: var(--app-muted-fg);
+  background: var(--app-muted);
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--app-border);
+}
+
+.rec-transcript {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rec-msg {
+  display: flex;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.rec-msg.visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.rec-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.rec-msg-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rec-msg-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 3px;
+  flex-wrap: wrap;
+}
+
+.rec-msg-meta .time {
+  font-size: 13px;
+  color: var(--app-muted-fg);
+}
+
+.rec-msg-text {
+  font-size: 15px;
+  color: rgba(26,26,26,0.9);
+  line-height: 1.6;
+}
+
+.rec-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: rgba(250,249,247,0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid var(--app-border);
+  padding: 8px 16px 28px;
+}
+
+.rec-controls-inner {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.soundbars {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: var(--app-card);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 6px;
+  flex-shrink: 0;
+}
+
+.soundbars .bar {
+  width: 3px;
+  border-radius: 2px;
+  background: var(--app-primary);
+}
+
+/* ── Screen 4: Post-recording edit ── */
+.edit-content {
+  padding: 24px;
+  padding-bottom: 88px;
+}
+
+.edit-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.edit-info-item label {
+  font-size: 13px;
+  color: var(--app-muted-fg);
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 400;
+}
+
+.edit-info-item .value {
+  font-size: 18px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+}
+
+.speaker-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  background: var(--app-card);
+}
+
+.speaker-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.speaker-info { flex: 1; }
+.speaker-info .name { font-weight: 500; font-size: 15px; }
+.speaker-info .count { font-size: 13px; color: var(--app-muted-fg); }
+
+.speaker-edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid var(--app-border);
+  border-radius: 8px;
+  background: transparent;
+  font-size: 13px;
+  color: var(--app-fg);
+  cursor: pointer;
+  font-family: var(--font-sans);
+}
+
+/* ── Screen 5: Data Analysis ── */
+.tabs-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  background: var(--app-muted);
+  border-radius: 10px;
+  padding: 3px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 8px 4px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--app-muted-fg);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  background: var(--app-card);
+  color: var(--app-fg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.participant-card {
+  border: 1px solid var(--app-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--app-card);
+}
+
+.participant-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.participant-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.participant-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.participant-name { font-weight: 500; font-size: 15px; }
+.participant-stats { font-size: 13px; color: var(--app-muted-fg); }
+
+.participant-detail {
+  padding: 0 16px 14px;
+  border-top: 1px solid var(--app-border);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-top: 14px;
+}
+
+.detail-label { font-size: 13px; color: var(--app-muted-fg); margin-bottom: 2px; }
+.detail-value { font-size: 14px; }
+
+.keyword-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.keyword-tag {
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  background: var(--app-muted);
+  color: var(--app-fg);
+}
+
+/* ── Screen 6: Visualization ── */
+.viz-canvas-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--app-border);
+  background: var(--app-bg);
+  position: relative;
+}
+
+.viz-canvas-wrap canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.viz-fullscreen-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(26,26,26,0.75);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.15);
+  font-family: var(--font-sans);
+}
+
+.mode-bar {
+  display: flex;
+  gap: 4px;
+  background: var(--app-muted);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.mode-btn {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  background: transparent;
+  color: var(--app-muted-fg);
+}
+
+.mode-btn.active {
+  background: var(--app-card);
+  color: var(--app-fg);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.timeline-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.timeline-track {
+  flex: 1;
+  height: 4px;
+  background: var(--app-muted);
+  border-radius: 2px;
+  position: relative;
+}
+
+.timeline-fill {
+  height: 100%;
+  background: var(--app-primary);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.timeline-label {
+  font-size: 11px;
+  color: var(--app-muted-fg);
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  white-space: nowrap;
+}
+
+.viz-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border-radius: 12px;
+  border: 1px solid var(--app-border);
+  background: var(--app-card);
+}
+
+.viz-stat .num {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.viz-stat .label {
+  font-size: 11px;
+  color: var(--app-muted-fg);
+}
+
+.viz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.viz-legend-item {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid var(--app-border);
+  background: var(--app-card);
+}
+
+/* ── Screen 7 & 8: History & Gallery ── */
+.list-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--app-border);
+  border-radius: 16px;
+  background: var(--app-card);
+}
+
+.list-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--app-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.list-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.list-card-title {
+  font-weight: 500;
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.list-card-meta {
+  font-size: 12px;
+  color: var(--app-muted-fg);
+}
+
+.list-card-arrow {
+  color: var(--app-muted-fg);
+  flex-shrink: 0;
+}
+
+.participant-pills {
+  display: flex;
+  gap: 4px;
+  margin-top: 6px;
+  flex-wrap: wrap;
+}
+
+.participant-pill {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 600;
+}
+
+.participant-pill-overflow {
+  background: var(--app-muted);
+  color: var(--app-muted-fg);
+  font-size: 9px;
+}
+
+/* CTA card in data analysis */
+.cta-card {
+  background: linear-gradient(135deg, rgba(26,26,26,0.06), rgba(120,120,120,0.06));
+  border: 1px solid rgba(26,26,26,0.12);
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  gap: 14px;
+}
+
+.cta-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(26,26,26,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cta-body h4 {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.cta-body p {
+  font-size: 13px;
+  color: var(--app-muted-fg);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+/* ── Responsive ── */
+@media (max-height: 860px) {
+  :root {
+    --phone-w: 320px;
+    --phone-h: 693px;
+    --phone-radius: 44px;
+    --screen-radius: 38px;
+  }
+  .showcase { gap: 40px; padding: 24px; }
+  .info-panel h1 { font-size: 40px; }
+}
+
+@media (max-width: 900px) {
+  .showcase {
+    flex-direction: column;
+    gap: 24px;
+    padding: 20px 20px 100px;
+    overflow-y: auto;
+    align-items: center;
+  }
+  .info-panel {
+    max-width: 100%;
+    text-align: center;
+    order: -1;
+  }
+  .info-panel h1 { font-size: 32px; }
+  .step-desc { min-height: auto; }
+  :root {
+    --phone-w: 320px;
+    --phone-h: 693px;
+    --phone-radius: 44px;
+    --screen-radius: 38px;
+  }
+  .step-tags {
+    position: relative;
+    bottom: auto;
+    transform: none;
+    left: auto;
+    margin-top: 16px;
+  }
+  .play-toggle {
+    top: 12px;
+    right: 16px;
+  }
+}
+</style>
+</head>
+<body>
+
+<div class="showcase">
+  <!-- Left Info Panel -->
+  <div class="info-panel">
+    <h1>显·影</h1>
+    <p class="tagline">让不可见的互动，显影为艺术。</p>
+    <div class="step-desc" id="stepDesc">
+      <div class="step-label">STEP 1 / 8</div>
+      <h2>首页</h2>
+      <p>粒子预览与打字机效果展示产品理念，用户可一键开始新的对话记录。</p>
+    </div>
+    <div class="progress-bar"><div class="fill" id="progressFill" style="width: 12.5%"></div></div>
+  </div>
+
+  <!-- iPhone Mockup -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="phone-vol-up"></div>
+      <div class="phone-vol-down"></div>
+      <div class="phone-screen">
+        <div class="dynamic-island"></div>
+        <div class="home-indicator"></div>
+        <div class="screen-container" id="screenContainer">
+          <!-- Screens will be injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Step Tags -->
+<div class="step-tags" id="stepTags"></div>
+
+<!-- Play/Pause -->
+<button class="play-toggle" id="playToggle" title="暂停/继续">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+</button>
+
+<script>
+// ── SVG Icons ──
+const ICONS = {
+  mic: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>',
+  upload: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>',
+  chevronLeft: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+  chevronRight: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+  chevronDown: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>',
+  chevronUp: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>',
+  home: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  bookOpen: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
+  image: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>',
+  settings: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>',
+  pause: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>',
+  stopCircle: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>',
+  sparkles: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>',
+  edit2: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>',
+  arrowRight: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+  maximize: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" x2="14" y1="3" y2="10"/><line x1="3" x2="10" y1="21" y2="14"/></svg>',
+  play: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>',
+  calendar: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>',
+  clock: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  users: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
+  check: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>',
+  hand: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>',
+};
+
+// ── Mock Data ──
+const SPEAKERS = {
+  '阿林': { color: '#dbeafe', text: '#1e40af', dot: '#3b82f6', avatar: '林' },
+  '小夏': { color: '#fce7f3', text: '#9d174d', dot: '#ec4899', avatar: '夏' },
+  '大鹏': { color: '#d1fae5', text: '#065f46', dot: '#10b981', avatar: '鹏' },
+  'Mia': { color: '#fef3c7', text: '#92400e', dot: '#f59e0b', avatar: 'M' },
+};
+
+const MOCK_TRANSCRIPTS = [
+  { speaker: '阿林', text: '大家都到了吧？咱们开始讨论新功能的方案', time: '00:00:00', emotion: '平静', dur: '5.2s' },
+  { speaker: '小夏', text: '到了到了。我觉得这次要重点优化录音页面的体验', time: '00:00:06', emotion: '积极', dur: '5.5s' },
+  { speaker: '大鹏', text: '同意。但我更关心数据分析那块，图表加载太慢了', time: '00:00:12', emotion: '消极', dur: '5.8s' },
+  { speaker: 'Mia', text: '加载慢可能是后端接口的问题，不一定是前端', time: '00:00:18', emotion: '平静', dur: '4.5s' },
+  { speaker: '大鹏', text: '不是，我测了，后端响应很快，是渲染 3D 可视化卡的', time: '00:00:24', emotion: '消极', dur: '6.2s' },
+  { speaker: '阿林', text: '那这样，我们分两步：先解决性能，再加新功能', time: '00:00:31', emotion: '平静', dur: '5.5s' },
+  { speaker: '小夏', text: '等等，我还没说完。录音页面用户不知道怎么操作', time: '00:00:37', emotion: '消极', dur: '6.8s' },
+  { speaker: '阿林', text: '好好好，你说你说', time: '00:00:44', emotion: '平静', dur: '2.0s' },
+  { speaker: '小夏', text: '我们应该加一个引导教程，新用户第一次打开自动弹出', time: '00:00:47', emotion: '积极', dur: '7.0s' },
+  { speaker: 'Mia', text: '这个好！我之前也想过，可以做成卡片式的步骤引导', time: '00:00:55', emotion: '积极', dur: '6.0s' },
+];
+
+// ── Step Definitions ──
+const STEPS = [
+  { id: 'home', label: '首页', title: '首页', desc: '粒子预览与打字机效果展示产品理念，用户可一键开始新的对话记录。', duration: 4500 },
+  { id: 'mode', label: '启动模式', title: '选择启动模式', desc: '设备检测通过后，用户选择"手动启动"模式，系统将自动识别发言人。', duration: 4000 },
+  { id: 'recording', label: '录制中', title: '实时录制', desc: '10 条对话逐条出现，实时转录带声音波形动画，支持暂停和结束操作。', duration: 9000 },
+  { id: 'edit', label: '会后编辑', title: '会后编辑', desc: '校对转录文本，管理 4 位发言人姓名，预览全部对话内容。', duration: 5000 },
+  { id: 'analysis', label: '数据分析', title: '数据分析', desc: '个人累计数据、单条发言详情、气氛转折事件三大维度解读对话。', duration: 5000 },
+  { id: 'viz', label: '3D 可视化', title: '3D 可视化', desc: '粒子代表发言人，电流代表对话流向，情绪映射为色彩——对话显影为艺术。', duration: 6000 },
+  { id: 'history', label: '历史记录', title: '历史记录', desc: '浏览过往的录制记录，支持搜索、筛选和排序。', duration: 4000 },
+  { id: 'gallery', label: '作品库', title: '作品库', desc: '已生成的可视化艺术作品集合，可查看、导出、分享。', duration: 4000 },
+];
+
+let currentStep = 0;
+let isPlaying = true;
+let autoTimer = null;
+let recordingAnimTimer = null;
+let typewriterTimer = null;
+
+// ── Build Bottom Nav HTML ──
+function bottomNav(activeId) {
+  const items = [
+    { id: 'home', label: '首页', icon: ICONS.home },
+    { id: 'history', label: '记录', icon: ICONS.bookOpen },
+    { id: 'gallery', label: '作品库', icon: ICONS.image },
+    { id: 'settings', label: '设置', icon: ICONS.settings },
+  ];
+  return `<div class="bottom-nav"><div class="bottom-nav-inner">${items.map(i =>
+    `<button class="nav-item${i.id === activeId ? ' active' : ''}">${i.icon}<span>${i.label}</span></button>`
+  ).join('')}</div></div>`;
+}
+
+// ── Screen Builders ──
+function buildScreenHome() {
+  return `<div class="screen" id="screen-home">
+    <div class="home-grid-bg"></div>
+    <div class="home-grid-mask"></div>
+    <div class="home-content">
+      <div class="home-tagline anim-fade-in-up">
+        <h2 style="font-size:17px">让不可见的<span style="font-family:var(--font-serif)">互动</span>，显影为<span style="font-family:var(--font-serif)">艺术</span></h2>
+        <p>记录群体对话 · 转化为粒子与光的可视化作品</p>
+      </div>
+      <div class="home-canvas-wrap"><canvas id="homeCanvas"></canvas></div>
+      <div class="home-typewriter" id="homeTypewriter"><span class="cursor"></span></div>
+      <div style="flex:1"></div>
+      <div class="home-cta">
+        <button class="btn btn-primary">${ICONS.mic} 新建记录</button>
+        <button class="btn btn-outline">${ICONS.upload} 上传录音文件</button>
+      </div>
+    </div>
+    ${bottomNav('home')}
+  </div>`;
+}
+
+function buildScreenMode() {
+  return `<div class="screen" id="screen-mode">
+    <div class="app-header">
+      <div class="app-header-inner">
+        <div class="icon-btn">${ICONS.chevronLeft}</div>
+        <h2>选择启动模式</h2>
+        <div class="header-spacer"></div>
+      </div>
+    </div>
+    <div style="padding:24px;padding-bottom:88px;display:flex;flex-direction:column;gap:24px;">
+      <!-- Device check success -->
+      <div style="padding:12px 16px;border-radius:8px;background:rgba(34,197,94,0.06);border:1px solid rgba(34,197,94,0.2);display:flex;align-items:center;gap:8px;">
+        ${ICONS.check}
+        <span style="font-size:13px;color:#15803d;">设备检测通过！请选择启动模式继续。</span>
+      </div>
+
+      <div>
+        <div class="section-title"><div class="bar"></div><h3>选择启动模式</h3></div>
+        <p style="font-size:14px;color:var(--app-muted-fg)">系统将自动识别对话和发言人</p>
+      </div>
+
+      <!-- Manual mode - selected -->
+      <div style="padding:20px;border-radius:16px;border:1px solid #93c5fd;background:#eff6ff;">
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:44px;height:44px;border-radius:10px;background:#dbeafe;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#2563eb;">
+            ${ICONS.hand}
+          </div>
+          <div style="flex:1">
+            <div style="font-weight:500;font-size:15px;margin-bottom:6px">手动启动</div>
+            <p style="font-size:13px;color:var(--app-muted-fg);line-height:1.6">手动启动录制，系统自动识别发言人，会后可编辑姓名。</p>
+            <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+              <span style="padding:3px 8px;border-radius:6px;font-size:11px;background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd">简单直观</span>
+              <span style="padding:3px 8px;border-radius:6px;font-size:11px;background:#dbeafe;color:#1d4ed8;border:1px solid #93c5fd">适合小型会议</span>
+            </div>
+          </div>
+          <div style="flex-shrink:0;color:#2563eb">${ICONS.check}</div>
+        </div>
+      </div>
+
+      <!-- NFC mode - unselected -->
+      <div style="padding:20px;border-radius:16px;border:1px solid var(--app-border);background:var(--app-card);opacity:0.7">
+        <div style="display:flex;align-items:flex-start;gap:14px;">
+          <div style="width:44px;height:44px;border-radius:10px;background:var(--app-muted);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--app-muted-fg)">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"/><path d="M16.5 7.5a6 6 0 0 1 0 9"/><path d="M7.5 7.5a6 6 0 0 0 0 9"/><path d="M19.5 4.5a10 10 0 0 1 0 15"/><path d="M4.5 4.5a10 10 0 0 0 0 15"/></svg>
+          </div>
+          <div style="flex:1">
+            <div style="font-weight:500;font-size:15px;margin-bottom:6px">NFC 触发</div>
+            <p style="font-size:13px;color:var(--app-muted-fg);line-height:1.6">通过 NFC 标签自动识别参与者身份并记录发言人。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 16px 28px;background:rgba(250,249,247,0.95);backdrop-filter:blur(16px);border-top:1px solid var(--app-border);">
+      <button class="btn btn-primary" style="height:40px">下一步</button>
+    </div>
+  </div>`;
+}
+
+function buildScreenRecording() {
+  const msgs = MOCK_TRANSCRIPTS.map((t, i) => {
+    const s = SPEAKERS[t.speaker];
+    return `<div class="rec-msg" id="recMsg${i}">
+      <div class="rec-avatar" style="background:${s.color};color:${s.text}">${s.avatar}</div>
+      <div class="rec-msg-body">
+        <div class="rec-msg-meta">
+          <span class="time">${t.time}</span>
+          <span class="badge badge-${t.emotion === '积极' ? 'green' : t.emotion === '消极' ? 'red' : 'blue'}" style="font-size:10px;padding:1px 6px">${t.emotion}</span>
+        </div>
+        <div class="rec-msg-text">${t.text}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="screen" id="screen-recording">
+    <div style="position:sticky;top:0;z-index:20;background:rgba(250,249,247,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--app-border);padding-top:56px">
+      <div class="rec-header">
+        <span class="badge badge-primary" style="gap:6px"><span class="rec-dot"></span>录制中</span>
+        <div class="rec-title">功能讨论会</div>
+        <span class="rec-time" id="recTimer">00:00:00</span>
+      </div>
+    </div>
+    <div class="rec-transcript" id="recTranscript" style="padding-bottom:88px">
+      ${msgs}
+    </div>
+    <div class="rec-controls">
+      <div class="rec-controls-inner">
+        <div class="soundbars" id="soundbars"></div>
+        <button class="btn btn-ghost" style="flex:1">${ICONS.pause} 暂停</button>
+        <button class="btn btn-destructive">${ICONS.stopCircle} 结束</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildScreenEdit() {
+  const speakerList = Object.entries(SPEAKERS).map(([name, s]) => {
+    const count = MOCK_TRANSCRIPTS.filter(t => t.speaker === name).length;
+    return `<div class="speaker-card">
+      <div class="speaker-avatar" style="background:${s.color};color:${s.text}">${s.avatar}</div>
+      <div class="speaker-info">
+        <div class="name">${name}</div>
+        <div class="count">${count} 次发言</div>
+      </div>
+      <button class="speaker-edit-btn">${ICONS.edit2} 编辑</button>
+    </div>`;
+  }).join('');
+
+  const previewMsgs = MOCK_TRANSCRIPTS.slice(0, 5).map(t => {
+    const s = SPEAKERS[t.speaker];
+    return `<div style="display:flex;gap:10px">
+      <div style="width:28px;height:28px;border-radius:50%;background:${s.color};color:${s.text};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0">${s.avatar}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;flex-wrap:wrap">
+          <span style="font-weight:500;font-size:13px">${t.speaker}</span>
+          <span style="font-size:11px;color:var(--app-muted-fg)">${t.time}</span>
+          <span style="font-size:11px;color:var(--app-muted-fg)">${t.dur}</span>
+        </div>
+        <p style="font-size:13px;color:rgba(26,26,26,0.9);line-height:1.6">${t.text}</p>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `<div class="screen" id="screen-edit">
+    <div class="app-header">
+      <div class="app-header-inner">
+        <div class="header-spacer"></div>
+        <h2>会后编辑</h2>
+        <div class="header-spacer"></div>
+      </div>
+    </div>
+    <div class="edit-content" style="display:flex;flex-direction:column;gap:28px">
+      <div>
+        <div class="section-title"><div class="bar"></div><h3>场景信息</h3></div>
+        <div class="card" style="margin-top:12px">
+          <div class="edit-info-grid">
+            <div class="edit-info-item"><label>录制时长</label><div class="value">02:12</div></div>
+            <div class="edit-info-item"><label>启动模式</label><div><span class="badge" style="font-size:11px">手动启动</span></div></div>
+            <div class="edit-info-item"><label>对话记录</label><div class="value" style="font-family:var(--font-sans)">10 条</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-title" style="margin-bottom:12px">
+          <div class="bar"></div><h3>发言人管理</h3>
+          <span class="badge" style="margin-left:8px;font-size:11px">${ICONS.users} 4 人</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">${speakerList}</div>
+      </div>
+
+      <div>
+        <div class="section-title" style="margin-bottom:12px"><div class="bar"></div><h3>对话预览</h3></div>
+        <div class="card" style="padding:14px">
+          <div style="display:flex;flex-direction:column;gap:12px">${previewMsgs}</div>
+          <p style="text-align:center;color:var(--app-muted-fg);font-size:13px;margin-top:12px">还有 5 条对话记录...</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 16px 28px;background:rgba(250,249,247,0.95);backdrop-filter:blur(16px);border-top:1px solid var(--app-border);">
+      <button class="btn btn-primary" style="height:40px">完成编辑，查看数据分析 ${ICONS.arrowRight}</button>
+    </div>
+  </div>`;
+}
+
+function buildScreenAnalysis() {
+  const participants = [
+    { name: '阿林', count: 3, avgDur: 4, interaction: '总结、提问', keywords: ['方案', '功能', '分工'], reaction: '平静' },
+    { name: '小夏', count: 3, avgDur: 6, interaction: '提问、打断', keywords: ['录音', '体验', '引导'], reaction: '积极' },
+    { name: '大鹏', count: 2, avgDur: 6, interaction: '反驳、陈述', keywords: ['性能', '渲染', '3D'], reaction: '消极' },
+    { name: 'Mia', count: 2, avgDur: 5, interaction: '补充、回应', keywords: ['后端', '卡片', '原型'], reaction: '积极' },
+  ];
+
+  const cards = participants.map((p, i) => {
+    const s = SPEAKERS[p.name];
+    const isExpanded = i === 0;
+    return `<div class="participant-card">
+      <div class="participant-header">
+        <div class="participant-left">
+          <div class="participant-avatar" style="background:${s.color};color:${s.text}">${s.avatar}</div>
+          <div>
+            <div class="participant-name">${p.name}</div>
+            <div class="participant-stats">发言 ${p.count} 次 · 平均 ${p.avgDur} 秒</div>
+          </div>
+        </div>
+        ${isExpanded ? ICONS.chevronUp : ICONS.chevronDown}
+      </div>
+      ${isExpanded ? `<div class="participant-detail">
+        <div class="detail-grid">
+          <div><div class="detail-label">主要互动类型</div><div class="detail-value">${p.interaction}</div></div>
+          <div><div class="detail-label">他人主要反应</div><div class="detail-value">${p.reaction}</div></div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="detail-label">反复使用的词汇</div>
+          <div class="keyword-tags">${p.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('')}</div>
+        </div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  return `<div class="screen" id="screen-analysis">
+    <div class="app-header">
+      <div class="app-header-inner">
+        <div class="icon-btn">${ICONS.chevronLeft}</div>
+        <h2>数据分析结果</h2>
+        <div class="header-spacer"></div>
+      </div>
+    </div>
+    <div style="padding:24px;padding-bottom:88px">
+      <div class="tabs-bar">
+        <button class="tab-btn active">个人累计数据</button>
+        <button class="tab-btn">单条发言详情</button>
+        <button class="tab-btn">气氛转折事件</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">${cards}</div>
+
+      <div class="cta-card" style="margin-top:28px">
+        <div class="cta-icon">${ICONS.sparkles}</div>
+        <div class="cta-body">
+          <h4>准备好生成艺术作品了吗？</h4>
+          <p>基于数据分析，生成粒子系统和光束网络的可视化艺术作品。</p>
+          <button class="btn btn-primary btn-sm" style="width:auto;display:inline-flex">${ICONS.sparkles} 进入可视化设置</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildScreenViz() {
+  return `<div class="screen" id="screen-viz">
+    <div class="app-header">
+      <div class="app-header-inner">
+        <div class="icon-btn">${ICONS.chevronLeft}</div>
+        <h2>3D 可视化</h2>
+        <div class="header-spacer"></div>
+      </div>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:14px;align-items:center;padding-bottom:40px">
+      <div style="display:flex;gap:4px;background:var(--app-muted);border-radius:10px;padding:3px;width:100%;max-width:420px">
+        <button class="tab-btn active" style="flex:1">${ICONS.sparkles} 艺术化呈现</button>
+        <button class="tab-btn" style="flex:1">${ICONS.settings} 可视化设置</button>
+      </div>
+
+      <div class="viz-canvas-wrap" style="max-width:420px">
+        <canvas id="vizCanvas"></canvas>
+        <div class="viz-fullscreen-btn">${ICONS.maximize} 全屏浏览</div>
+      </div>
+
+      <div style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:10px;align-items:center">
+        <div class="mode-bar" style="width:100%">
+          <button class="mode-btn active" style="flex:1">时间轴播放</button>
+          <button class="mode-btn" style="flex:1">总览汇总</button>
+        </div>
+
+        <div class="timeline-bar" style="width:100%">
+          <button style="background:none;border:none;cursor:pointer;color:var(--app-fg);padding:4px">${ICONS.play}</button>
+          <div class="timeline-track"><div class="timeline-fill" id="vizTimelineFill" style="width:35%"></div></div>
+          <span class="timeline-label">7/20</span>
+        </div>
+      </div>
+
+      <div class="viz-stats" style="width:100%;max-width:420px">
+        <div class="viz-stat"><span class="num">4</span><span class="label">参与者</span></div>
+        <div class="viz-stat"><span class="num">10</span><span class="label">发言事件</span></div>
+        <div class="viz-stat"><span class="num">6</span><span class="label">互动连线</span></div>
+      </div>
+
+      <div class="viz-legend" style="width:100%;max-width:420px">
+        ${Object.entries(SPEAKERS).map(([name]) => `<span class="viz-legend-item">${name}</span>`).join('')}
+      </div>
+
+      <p style="font-size:11px;color:var(--app-muted-fg);text-align:center;max-width:420px">点击「全屏浏览」进入沉浸模式，查看完整交互详情</p>
+    </div>
+  </div>`;
+}
+
+function buildScreenHistory() {
+  const records = [
+    { name: '功能讨论会', date: '2026-03-25', dur: '00:02:12', people: ['阿林','小夏','大鹏','Mia'] },
+    { name: '毕业设计答辩', date: '2026-03-18', dur: '00:45:32', people: ['Alice','Bob','Charlie','Diana','Eve'] },
+    { name: '小组讨论', date: '2026-03-17', dur: '00:32:15', people: ['Alice','Bob','Frank'] },
+    { name: '项目评审会', date: '2026-03-15', dur: '01:12:40', people: ['Alice','Charlie','Diana'] },
+  ];
+
+  const cards = records.map(r => {
+    const pills = r.people.slice(0,3).map(p => {
+      const sp = SPEAKERS[p];
+      if (sp) return `<div class="participant-pill" style="background:${sp.color};color:${sp.text}">${sp.avatar}</div>`;
+      return `<div class="participant-pill" style="background:var(--app-muted);color:var(--app-muted-fg)">${p[0]}</div>`;
+    }).join('');
+    const overflow = r.people.length > 3 ? `<div class="participant-pill participant-pill-overflow">+${r.people.length - 3}</div>` : '';
+
+    return `<div class="list-card">
+      <div class="list-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--app-muted-fg)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="list-card-body">
+        <div class="list-card-title">${r.name}</div>
+        <div class="list-card-meta">${r.date} · ${r.dur}</div>
+        <div class="participant-pills">${pills}${overflow}</div>
+      </div>
+      <div class="list-card-arrow">${ICONS.chevronRight}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="screen" id="screen-history">
+    <div class="app-header">
+      <div class="app-header-inner">
+        <div class="header-spacer"></div>
+        <h2>历史记录</h2>
+        <div class="header-spacer"></div>
+      </div>
+    </div>
+    <div style="padding:24px;padding-bottom:88px;display:flex;flex-direction:column;gap:12px">
+      ${cards}
+    </div>
+    ${bottomNav('history')}
+  </div>`;
+}
+
+function buildScreenGallery() {
+  const items = [
+    { title: '功能讨论可视化', date: '2026-03-25', dur: '02:12', people: ['阿林','小夏','大鹏','Mia'], src: '功能讨论会' },
+    { title: '团队会议可视化', date: '2026-03-18', dur: '45:30', people: ['Alice','Bob','Charlie'], src: '毕业设计答辩' },
+    { title: '创意讨论场域', date: '2026-03-17', dur: '32:15', people: ['Alice','Bob','Frank'], src: '小组讨论' },
+    { title: '午餐交流分析', date: '2026-03-16', dur: '28:45', people: ['Bob','Charlie','Heidi'], src: '午餐交流' },
+  ];
+
+  const cards = items.map(it => {
+    const pills = it.people.slice(0,3).map(p => {
+      const sp = SPEAKERS[p];
+      if (sp) return `<div class="participant-pill" style="background:${sp.color};color:${sp.text}">${sp.avatar}</div>`;
+      return `<div class="participant-pill" style="background:var(--app-muted);color:var(--app-muted-fg)">${p[0]}</div>`;
+    }).join('');
+
+    return `<div class="list-card">
+      <div class="list-card-icon" style="background:linear-gradient(135deg,rgba(26,26,26,0.06),rgba(120,120,120,0.06))">${ICONS.sparkles}</div>
+      <div class="list-card-body">
+        <div class="list-card-title">${it.title}</div>
+        <div class="list-card-meta">${it.date} · ${it.dur} · 来源: ${it.src}</div>
+        <div class="participant-pills">${pills}${it.people.length > 3 ? `<div class="participant-pill participant-pill-overflow">+${it.people.length-3}</div>` : ''}</div>
+      </div>
+      <div class="list-card-arrow">${ICONS.chevronRight}</div>
+    </div>`;
+  }).join('');
+
+  return `<div class="screen" id="screen-gallery">
+    <div class="app-header">
+      <div class="app-header-inner">
+        <div class="header-spacer"></div>
+        <h2>作品库</h2>
+        <div class="header-spacer"></div>
+      </div>
+    </div>
+    <div style="padding:24px;padding-bottom:88px;display:flex;flex-direction:column;gap:12px">
+      ${cards}
+    </div>
+    ${bottomNav('gallery')}
+  </div>`;
+}
+
+// ── Inject All Screens ──
+const container = document.getElementById('screenContainer');
+container.innerHTML = [
+  buildScreenHome(),
+  buildScreenMode(),
+  buildScreenRecording(),
+  buildScreenEdit(),
+  buildScreenAnalysis(),
+  buildScreenViz(),
+  buildScreenHistory(),
+  buildScreenGallery(),
+].join('');
+
+// ── Build Step Tags ──
+const tagsEl = document.getElementById('stepTags');
+tagsEl.innerHTML = STEPS.map((s, i) =>
+  `<button class="step-tag${i === 0 ? ' active' : ''}" data-idx="${i}">${s.label}</button>`
+).join('');
+
+tagsEl.addEventListener('click', e => {
+  const btn = e.target.closest('.step-tag');
+  if (!btn) return;
+  const idx = parseInt(btn.dataset.idx);
+  goToStep(idx);
+});
+
+// ── Play/Pause ──
+const playBtn = document.getElementById('playToggle');
+playBtn.addEventListener('click', () => {
+  isPlaying = !isPlaying;
+  playBtn.innerHTML = isPlaying
+    ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+    : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg>';
+  if (isPlaying) scheduleNext();
+});
+
+// ── Navigation Logic ──
+function goToStep(idx) {
+  if (idx === currentStep) return;
+  clearTimeout(autoTimer);
+  clearTimeout(recordingAnimTimer);
+  clearTimeout(typewriterTimer);
+
+  const screens = container.querySelectorAll('.screen');
+  screens.forEach(s => { s.classList.remove('active'); s.scrollTop = 0; });
+
+  currentStep = idx;
+  screens[idx].classList.add('active');
+
+  // Update info panel
+  const step = STEPS[idx];
+  document.getElementById('stepDesc').innerHTML = `
+    <div class="step-label">STEP ${idx + 1} / ${STEPS.length}</div>
+    <h2>${step.title}</h2>
+    <p>${step.desc}</p>
+  `;
+  document.getElementById('progressFill').style.width = `${((idx + 1) / STEPS.length) * 100}%`;
+
+  // Update tags
+  document.querySelectorAll('.step-tag').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+  });
+
+  // Step-specific animations
+  if (idx === 0) initHomeAnimations();
+  if (idx === 2) initRecordingAnimation();
+  if (idx === 5) initVizAnimation();
+
+  // Stagger-in cards for list-heavy screens
+  const activeScreen = screens[idx];
+  const staggerEls = activeScreen.querySelectorAll('.speaker-card, .participant-card, .list-card, .cta-card');
+  staggerEls.forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(12px)';
+    el.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    setTimeout(() => {
+      el.style.opacity = '1';
+      el.style.transform = 'translateY(0)';
+    }, 100 + i * 90);
+  });
+
+  // Auto-scroll edit page to show speaker management after a delay
+  if (idx === 3) {
+    setTimeout(() => {
+      const editScreen = document.getElementById('screen-edit');
+      if (editScreen) editScreen.scrollTo({ top: 160, behavior: 'smooth' });
+    }, 800);
+  }
+
+  if (isPlaying) scheduleNext();
+}
+
+function scheduleNext() {
+  clearTimeout(autoTimer);
+  autoTimer = setTimeout(() => {
+    const next = (currentStep + 1) % STEPS.length;
+    goToStep(next);
+  }, STEPS[currentStep].duration);
+}
+
+// ── Home Canvas Animation ──
+function initHomeAnimations() {
+  const canvas = document.getElementById('homeCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const w = rect.width, h = rect.height;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const colors = ['#3b82f6', '#ec4899', '#10b981', '#f59e0b', '#8b5cf6'];
+  const nodes = colors.map((c, i) => ({
+    angle: (i / 5) * Math.PI * 2,
+    r: 0.3 + i * 0.12,
+    speed: 0.12 + i * 0.03,
+    color: c, size: 5,
+    x: 0, y: 0,
+  }));
+  const pairs = [[0,1],[1,2],[2,3],[3,4],[4,0],[0,2],[1,3]];
+
+  let tick = 0;
+  function draw() {
+    if (currentStep !== 0) return;
+    ctx.clearRect(0, 0, w, h);
+    const cx = w / 2, cy = h * 0.5, R = Math.min(w, h) * 0.44;
+    tick += 0.006;
+
+    ctx.strokeStyle = 'rgba(128,128,128,0.08)';
+    ctx.lineWidth = 0.5;
+    for (let r = 0.2; r <= 0.9; r += 0.18) {
+      ctx.beginPath(); ctx.arc(cx, cy, R * r, 0, Math.PI * 2); ctx.stroke();
+    }
+
+    nodes.forEach(n => {
+      n.angle += n.speed * 0.006;
+      n.x = cx + Math.cos(n.angle) * R * n.r;
+      n.y = cy + Math.sin(n.angle) * R * n.r;
+    });
+
+    pairs.forEach(([a, b]) => {
+      ctx.strokeStyle = nodes[a].color + '25';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(nodes[a].x, nodes[a].y); ctx.lineTo(nodes[b].x, nodes[b].y); ctx.stroke();
+    });
+
+    nodes.forEach(n => {
+      const breath = 0.6 + 0.4 * Math.sin(tick * 2 + n.angle * 2);
+      const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.size * 3.5);
+      g.addColorStop(0, n.color + Math.round(breath * 40).toString(16).padStart(2, '0'));
+      g.addColorStop(1, n.color + '00');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, n.size * 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 0.7 + 0.3 * breath;
+      ctx.fillStyle = n.color; ctx.beginPath(); ctx.arc(n.x, n.y, n.size, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  // Typewriter (recursive setTimeout for variable speed)
+  const questions = ['谁主导了这场对话？', '情绪在哪一刻发生了转折？', '每个人的发言风格是什么？', '互动背后隐藏了什么模式？'];
+  let qIdx = 0, cIdx = 0, twDeleting = false;
+  const twEl = document.getElementById('homeTypewriter');
+  if (typewriterTimer) clearTimeout(typewriterTimer);
+
+  function typewriterTick() {
+    if (currentStep !== 0) return;
+    const full = questions[qIdx];
+    if (!twDeleting) {
+      cIdx++;
+      twEl.innerHTML = full.substring(0, cIdx) + '<span class="cursor"></span>';
+      if (cIdx >= full.length) {
+        typewriterTimer = setTimeout(() => { twDeleting = true; typewriterTick(); }, 1400);
+        return;
+      }
+      typewriterTimer = setTimeout(typewriterTick, 75);
+    } else {
+      cIdx--;
+      if (cIdx <= 0) {
+        twDeleting = false;
+        qIdx = (qIdx + 1) % questions.length;
+        typewriterTimer = setTimeout(typewriterTick, 300);
+        return;
+      }
+      twEl.innerHTML = full.substring(0, cIdx) + '<span class="cursor"></span>';
+      typewriterTimer = setTimeout(typewriterTick, 35);
+    }
+  }
+  typewriterTick();
+}
+
+// ── Recording Animation ──
+function initRecordingAnimation() {
+  const msgs = document.querySelectorAll('.rec-msg');
+  msgs.forEach(m => m.classList.remove('visible'));
+
+  let idx = 0;
+  const timerEl = document.getElementById('recTimer');
+  let seconds = 0;
+
+  // Animate soundbars
+  const sb = document.getElementById('soundbars');
+  sb.innerHTML = '';
+  for (let i = 0; i < 5; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = '4px';
+    bar.style.transition = 'height 0.15s';
+    sb.appendChild(bar);
+  }
+
+  function animBars() {
+    if (currentStep !== 2) return;
+    sb.querySelectorAll('.bar').forEach(b => {
+      b.style.height = (4 + Math.random() * 20) + 'px';
+    });
+    setTimeout(animBars, 150);
+  }
+  animBars();
+
+  function showNext() {
+    if (currentStep !== 2) return;
+    if (idx < msgs.length) {
+      msgs[idx].classList.add('visible');
+      // Scroll into view
+      const transcript = document.getElementById('recTranscript');
+      transcript.scrollTop = transcript.scrollHeight;
+
+      // Parse time
+      const t = MOCK_TRANSCRIPTS[idx];
+      const parts = t.time.split(':');
+      seconds = parseInt(parts[0]) * 3600 + parseInt(parts[1]) * 60 + parseInt(parts[2]);
+      timerEl.textContent = t.time;
+
+      idx++;
+      recordingAnimTimer = setTimeout(showNext, 700);
+    }
+  }
+
+  recordingAnimTimer = setTimeout(showNext, 400);
+}
+
+// ── Viz Canvas Animation ──
+function initVizAnimation() {
+  const canvas = document.getElementById('vizCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const wrap = canvas.parentElement;
+  const w = wrap.clientWidth, h = wrap.clientHeight;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  const speakerColors = ['#3b82f6', '#ec4899', '#10b981', '#f59e0b'];
+  const speakerNames = ['阿林', '小夏', '大鹏', 'Mia'];
+  const N = 4;
+  const nodes = speakerColors.map((c, i) => {
+    const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+    const orbitR = 0.32;
+    return {
+      baseAngle: angle,
+      angle: angle,
+      orbitR,
+      speed: 0.08 + i * 0.015,
+      color: c,
+      size: 8 + (MOCK_TRANSCRIPTS.filter(t => t.speaker === speakerNames[i]).length) * 1.5,
+      x: 0, y: 0,
+      name: speakerNames[i],
+    };
+  });
+
+  const edges = [[0,1],[1,2],[2,3],[3,0],[0,2],[1,3]];
+  const edgeColors = ['#3b82f6', '#10b981', '#ef4444', '#f59e0b', '#3b82f6', '#ec4899'];
+
+  const bolts = edges.map(([a, b], i) => ({
+    from: a, to: b, color: edgeColors[i],
+    pulse: Math.random(), pulseSpeed: 0.15 + (i % 3) * 0.06,
+    path: [],
+  }));
+
+  let tick = 0, frame = 0;
+
+  function jag(x1, y1, x2, y2) {
+    const pts = [{ x: x1, y: y1 }];
+    for (let s = 1; s < 6; s++) {
+      const t = s / 6;
+      pts.push({ x: x1 + (x2 - x1) * t + (Math.random() - 0.5) * 12, y: y1 + (y2 - y1) * t + (Math.random() - 0.5) * 12 });
+    }
+    pts.push({ x: x2, y: y2 });
+    return pts;
+  }
+
+  function draw() {
+    if (currentStep !== 5) return;
+    ctx.clearRect(0, 0, w, h);
+    const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.38;
+    tick += 0.005;
+
+    // Grid rings
+    ctx.strokeStyle = 'rgba(180,180,180,0.06)';
+    ctx.lineWidth = 0.5;
+    for (let r = 0.15; r <= 0.9; r += 0.2) {
+      ctx.beginPath(); ctx.arc(cx, cy, R * r, 0, Math.PI * 2); ctx.stroke();
+    }
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(a) * R * 0.1, cy + Math.sin(a) * R * 0.1);
+      ctx.lineTo(cx + Math.cos(a) * R * 0.9, cy + Math.sin(a) * R * 0.9);
+      ctx.stroke();
+    }
+
+    // Update node positions
+    nodes.forEach(n => {
+      n.angle += n.speed * 0.005;
+      n.x = cx + Math.cos(n.angle) * R * n.orbitR * (1 + 0.15 * Math.sin(tick * 1.5 + n.baseAngle));
+      n.y = cy + Math.sin(n.angle) * R * n.orbitR * (1 + 0.15 * Math.cos(tick * 1.5 + n.baseAngle));
+    });
+
+    // Draw bolts (lightning edges)
+    bolts.forEach(b => {
+      const a = nodes[b.from], z = nodes[b.to];
+      if (frame % 25 === 0 || b.path.length === 0) b.path = jag(a.x, a.y, z.x, z.y);
+      else { b.path[0] = { x: a.x, y: a.y }; b.path[b.path.length - 1] = { x: z.x, y: z.y }; }
+
+      ctx.strokeStyle = b.color + '20';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(b.path[0].x, b.path[0].y);
+      for (let i = 1; i < b.path.length; i++) ctx.lineTo(b.path[i].x, b.path[i].y);
+      ctx.stroke();
+
+      b.pulse = (b.pulse + b.pulseSpeed * 0.005) % 1;
+      const pIdx = b.pulse * (b.path.length - 1);
+      const si = Math.floor(pIdx), sf = pIdx - si;
+      if (si < b.path.length - 1) {
+        const px = b.path[si].x + (b.path[si+1].x - b.path[si].x) * sf;
+        const py = b.path[si].y + (b.path[si+1].y - b.path[si].y) * sf;
+        const g = ctx.createRadialGradient(px, py, 0, px, py, 8);
+        g.addColorStop(0, b.color + 'aa');
+        g.addColorStop(1, b.color + '00');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px, py, 8, 0, Math.PI * 2); ctx.fill();
+      }
+    });
+
+    // Draw nodes
+    nodes.forEach(n => {
+      const breath = 0.6 + 0.4 * Math.sin(tick * 2.5 + n.baseAngle * 2);
+      // Glow
+      const g = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, n.size * 3);
+      g.addColorStop(0, n.color + Math.round(breath * 50).toString(16).padStart(2, '0'));
+      g.addColorStop(1, n.color + '00');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(n.x, n.y, n.size * 3, 0, Math.PI * 2); ctx.fill();
+      // Core
+      ctx.globalAlpha = 0.8 + 0.2 * breath;
+      ctx.fillStyle = n.color; ctx.beginPath(); ctx.arc(n.x, n.y, n.size, 0, Math.PI * 2); ctx.fill();
+      ctx.globalAlpha = 1;
+      // Label
+      ctx.fillStyle = 'rgba(26,26,26,0.75)';
+      ctx.font = '500 11px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(n.name, n.x, n.y + n.size + 16);
+    });
+
+    frame++;
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  // Animate timeline fill
+  let tFill = 0;
+  const fillEl = document.getElementById('vizTimelineFill');
+  function animTimeline() {
+    if (currentStep !== 5) return;
+    tFill += 0.8;
+    if (tFill > 100) tFill = 0;
+    fillEl.style.width = tFill + '%';
+    setTimeout(animTimeline, 60);
+  }
+  animTimeline();
+}
+
+// ── Init ──
+goToStep(0);
+</script>
+</body>
+</html>
