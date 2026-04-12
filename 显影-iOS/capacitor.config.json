@@ -1,0 +1,15 @@
+{
+  "appId": "com.xianying.app",
+  "appName": "显影",
+  "webDir": "build",
+  "server": {
+    "allowNavigation": [
+      "openspeech.bytedance.com"
+    ]
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

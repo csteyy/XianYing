@@ -14,6 +14,15 @@ node_modules/
 build/
 dist/
 
+# Android build artifacts
+**/android/build/
+**/android/app/build/
+**/android/capacitor-cordova-android-plugins/build/
+**/.gradle/
+**/local.properties
+*.apk
+*.aab
+
 # System files
 .DS_Store
 Thumbs.db
@@ -23,3 +32,6 @@ Thumbs.db
 .cursor/
 .specstory/
 .cursorindexingignore
+
+# 论文 / Paper files
+**/论文/
